@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>慶祝第100萬訪客 - iPhone 16 抽獎</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #FFF5E0;
+            font-family: Arial, sans-serif;
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            font-size: 1.8em;
+            margin: 5px 0;
+            color: #FF8C00;
+        }
+        .banner {
+            font-size: 1.4em;
+            background: linear-gradient(90deg, #FF8C00, #FFD700);
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            color: #333;
+        }
+        p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            max-width: 500px;
+        }
+        .instructions {
+            font-size: 1.1em;
+            margin: 15px 0;
+            max-width: 500px;
+            color: #555;
+        }
+        .membership-section {
+            background: linear-gradient(135deg, rgba(255, 140, 0, 0.3), rgba(255, 215, 0, 0.3));
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            max-width: 500px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            border: 1px solid #FF8C00;
+        }
+        .membership-section h3 {
+            font-size: 1.8em;
+            color: #FF8C00;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        }
+        .membership-section p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        .membership-section ul {
+            text-align: left;
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        .membership-section li {
+            font-size: 1.1em;
+            margin: 8px 0;
+            color: #333;
+            line-height: 1.4;
+        }
+        .membership-button {
+            padding: 14px 30px;
+            font-size: 1.2em;
+            background: linear-gradient(90deg, #FF8C00, #FFD700);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: #333;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 15px;
+        }
+        .membership-button:hover {
+            background: linear-gradient(90deg, #FFD700, #FF8C00);
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        #spinButton {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: #FF8C00;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            color: #333;
+        }
+        #spinButton:hover {
+            background-color: #FFD700;
+            transform: scale(1.05);
+        }
+        #spinButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: none;
+            font-family: Arial, sans-serif;
+        }
+        canvas#wheelCanvas {
+            border: 5px solid #333;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1000;
+            background: transparent;
+        }
+        .footer {
+            margin-top: 30px;
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 140, 0, 0.1);
+            border-top: 1px solid #ddd;
+            text-align: center;
+        }
+        .footer p {
+            font-size: 1em;
+            color: #777;
+            margin: 5px 0;
+            max-width: none;
+        }
+        .social-links {
+            margin-top: 10px;
+        }
+        .social-button {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 0 5px;
+            background-color: #FF8C00;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        .social-button:hover {
+            background-color: #FFD700;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ffffff, #fff9e6);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            max-width: 450px;
+            width: 90%;
+            border: 2px solid #FF8C00;
+        }
+        .popup h3 {
+            margin-top: 0;
+            color: #FF8C00;
+            font-size: 1.8em;
+            text-align: center;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        }
+        .popup p {
+            font-size: 1.1em;
+            color: #555;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        .popup label {
+            display: block;
+            margin: 15px 0 5px;
+            font-size: 1.1em;
+            color: #333;
+            font-weight: bold;
+        }
+        .popup input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #FF8C00;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            background-color: #fff9e6;
+            transition: border-color 0.2s;
+        }
+        .popup input:focus {
+            border-color: #FFD700;
+            outline: none;
+        }
+        .popup button {
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #FF8C00, #FFD700);
+            border: none;
+            border-radius: 25px;
+            color: #333;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .popup button:hover {
+            background: linear-gradient(90deg, #FFD700, #FF8C00);
+            transform: scale(1.03);
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1500;
+        }
+        #crashPage {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0000ff;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            z-index: 3000;
+            text-align: left;
+            overflow-y: auto;
+        }
+        #crashPage h3 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        #crashPage p {
+            font-size: 1em;
+            margin: 5px 0;
+            max-width: none;
+        }
+        #crashPage button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ffffff;
+            color: #0000ff;
+            border: 1px solid #ffffff;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        #spinningCrashPage {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #FFF5E0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid #FFD700;
+            border-top: 8px solid #FF8C00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #spinningCrashPage h3 {
+            font-size: 2em;
+            color: #FF8C00;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        }
+        #spinningCrashPage p {
+            font-size: 1.2em;
+            color: #555;
+            margin: 10px 0;
+            max-width: 500px;
+            text-align: center;
+        }
+        #spinningCrashPage button {
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #FF8C00, #FFD700);
+            border: none;
+            border-radius: 25px;
+            color: #333;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background 0.2s, transform 0.2s;
+        }
+        #spinningCrashPage button:hover {
+            background: linear-gradient(90deg, #FFD700, #FF8C00);
+            transform: scale(1.05);
+        }
+        .comment-section {
+            background: linear-gradient(135deg, rgba(255, 140, 0, 0.3), rgba(255, 215, 0, 0.3));
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            max-width: 500px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            border: 1px solid #FF8C00;
+        }
+        .comment-section h3 {
+            font-size: 1.8em;
+            color: #FF8C00;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        }
+        .comment {
+            background: #fff9e6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid #FF8C00;
+            text-align: left;
+        }
+        .comment p {
+            font-size: 1.1em;
+            color: #333;
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+        .comment .name {
+            font-weight: bold;
+            color: #FF8C00;
+        }
+        .comment .date {
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+<canvas id="confettiCanvas"></canvas>
+<h1>慶祝第100萬訪客 - iPhone 16 大獎抽獎！</h1>
+<h2>恭喜你成為我們的第100萬位貴客！</h2>
+<div class="banner">你是第100萬訪客！快來試試手氣！</div>
+<p>你是我們第100萬個訪客！快來轉動幸運輪盤，贏取iPhone 16或驚喜好禮！</p>
+<p class="instructions">參與方式：點擊下方「開始轉動」按鈕，讓幸運輪盤決定你的獎品！每位訪客都有機會贏得大獎，立即試試吧！</p>
+<div class="membership-section">
+    <h3>加入會員，贏iPhone 16！</h3>
+    <p>成為會員，立即獲得抽獎資格，還有更多專屬福利等你來解鎖！</p>
+    <ul>
+        <li>🎁 參加iPhone 16抽獎，有機會將最新款iPhone 16帶回家！</li>
+        <li>💰 獨家優惠與折扣，每次消費都省更多！</li>
+        <li>📱 個人化內容推薦，輕鬆發現你喜愛的資訊！</li>
+        <li>🚀 優先體驗最新功能，永遠走在潮流前端！</li>
+        <li>🎉 參加會員限定活動，結識志同道合的朋友！</li>
+    </ul>
+    <p>只需一分鐘免費註冊，無任何隱藏費用，資料安全有保障！</p>
+    <button onclick="showRegisterPopup()" class="membership-button">立即註冊，參加抽獎！</button>
+</div>
+<div id="canvasContainer"></div>
+<button id="spinButton" onclick="startSpin()">開始轉動</button>
+<div id="result"></div>
+<div class="comment-section">
+    <h3>得獎者留言</h3>
+    <div class="comment">
+        <p class="name">小明</p>
+        <p>真的不敢相信我抽中了iPhone 16！填完資料後，三天內就收到手機了，超快！感謝這個活動！</p>
+        <p class="date">2025-06-08</p>
+    </div>
+    <div class="comment">
+        <p class="name">雅婷</p>
+        <p>抽到iPhone 16真的超開心！物流超給力，兩天就送到我手上，品質完美！</p>
+        <p class="date">2025-06-07</p>
+    </div>
+    <div class="comment">
+        <p class="name">阿偉</p>
+        <p>原本只是試試看，沒想到真的中了iPhone 16！寄送速度很快，客服也很親切，太棒了！</p>
+        <p class="date">2025-06-06</p>
+    </div>
+</div>
+<div class="footer">
+    <p>感謝你成為我們第100萬位訪客！這場抽獎活動是為了慶祝這個重要里程碑，獎品包括夢寐以求的iPhone 16及其他驚喜好禮！</p>
+    <p>快將這份喜悅分享給朋友，一起加入幸運輪盤的樂趣！</p>
+    <div class="social-links">
+        <a href="#" class="social-button">分享至Facebook</a>
+        <a href="#" class="social-button">分享至Line</a>
+        <a href="#" class="social-button">分享至Instagram</a>
+    </div>
+    <p>有任何問題？請聯繫我們：<a href="mailto:support@example.com">support@example.com</a></p>
+</div>
+<div class="overlay" id="overlay"></div>
+<div id="popupForm" class="popup">
+    <h3>恭喜抽中 iPhone 16！</h3>
+    <p>請填寫以下資訊以領取獎品：</p>
+    <label for="name">姓名</label>
+    <input type="text" id="name" required>
+    <label for="phone">電話</label>
+    <input type="tel" id="phone" required>
+    <label for="address">地址</label>
+    <input type="text" id="address" required>
+    <button onclick="submitForm()">提交</button>
+</div>
+<div id="registerPopup" class="popup">
+    <h3>會員註冊</h3>
+    <p>請填寫以下資訊以完成註冊並參加iPhone 16抽獎！</p>
+    <label for="regName">姓名</label>
+    <input type="text" id="regName" required placeholder="輸入您的姓名">
+    <label for="regDob">出生年月日</label>
+    <input type="date" id="regDob" required>
+    <label for="regPhone">電話號碼</label>
+    <input type="tel" id="regPhone" required placeholder="輸入您的電話號碼">
+    <label for="regEmail">電子郵件</label>
+    <input type="email" id="regEmail" required placeholder="輸入您的電子郵件">
+    <button onclick="submitRegisterForm()">提交註冊</button>
+</div>
+<div id="crashPage">
+    <h3>系統錯誤！</h3>
+    <p>糟糕！我們的伺服器因為你贏得iPhone 16的喜悅而過載了！</p>
+    <p>錯誤代碼：WINNER_OVERLOAD_1000000</p>
+    <p>請不要驚慌！你的資料已安全記錄（大概吧）。</p>
+    <p>建議操作：請稍後再試，或聯繫我們的技術團隊（如果他們還沒逃跑的話）。</p>
+    <p>感謝你的參與！按下方按鈕返回主頁面，假裝什麼都沒發生！</p>
+    <button onclick="showSpinningCrashPage()">返回主頁面</button>
+</div>
+<div id="spinningCrashPage">
+    <div class="spinner"></div>
+    <h3>系統修復中...</h3>
+    <p>哇！你的幸運把我們的伺服器震暈了！我們正在拼命修復，請稍等片刻！</p>
+    <button onclick="resetPage()">返回主頁面</button>
+</div>
+
+<script>
+    let prizes = [
+        "iPhone 16 (128GB)",
+        "藍芽耳機",
+        "行動電源",
+        "再試一次",
+        "智能手環",
+        "藍芽音箱",
+        "感謝參與",
+        "現金5000元"
+    ];
+    let colors = ["#FF8C00", "#FFD700"];
+    let fixedPrizeOrder = [3, 0, 1, 2, 4, 5, 6, 7];
+    let wheel;
+    let angle = 0;
+    let spinning = false;
+    let spinSpeed = 0;
+    let spinTime = 0;
+    let spinTimeTotal = 5000;
+    let selectedPrize = "";
+    let confetti = [];
+    let confettiCanvas;
+    let spinCount = 0;
+
+    // 設置初始角度
+    let arcSize = 360 / prizes.length;
+    angle = -(0 + 0.5) * arcSize % 360;
+    if (angle < 0) angle += 360;
+
+    // 顯示註冊彈窗
+    function showRegisterPopup() {
+        document.getElementById('registerPopup').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    // 提交註冊表單
+    function submitRegisterForm() {
+        let name = document.getElementById('regName').value;
+        let dob = document.getElementById('regDob').value;
+        let phone = document.getElementById('regPhone').value;
+        let email = document.getElementById('regEmail').value;
+
+        if (name && dob && phone && email) {
+            console.log("Registered:", { name, dob, phone, email });
+            alert("註冊成功！您已獲得抽獎資格！");
+            document.getElementById('registerPopup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('regName').value = '';
+            document.getElementById('regDob').value = '';
+            document.getElementById('regPhone').value = '';
+            document.getElementById('regEmail').value = '';
+        } else {
+            alert("請填寫所有欄位！");
+        }
+    }
+
+    // 彩帶設置
+    function setupConfetti() {
+        confettiCanvas = document.getElementById('confettiCanvas');
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+        let ctx = confettiCanvas.getContext('2d');
+        for (let i = 0; i < 200; i++) {
+            confetti.push({
+                x: Math.random() * confettiCanvas.width,
+                y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                r: Math.random() * 4 + 1,
+                d: Math.random() * 100,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                tilt: Math.random() * 10,
+                tiltAngle: 0
+            });
+        }
+        function drawConfetti() {
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confetti.forEach(p => {
+                p.tiltAngle += 0.1;
+                p.y += Math.cos(p.d) + 1 + p.r / 2;
+                p.tilt = Math.sin(p.tiltAngle) * 15;
+                if (p.y > confettiCanvas.height) {
+                    p.y = -p.r - Math.random() * 50;
+                    p.x = Math.random() * confettiCanvas.width;
+                }
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+                ctx.stroke();
+            });
+            requestAnimationFrame(drawConfetti);
+        }
+        drawConfetti();
+    }
+
+    // 音效
+    function playCelebrationSound() {
+        let ctx = new AudioContext();
+        let oscillator = ctx.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.5);
+        oscillator.connect(ctx.destination);
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 0.5);
+    }
+
+    // 初始化畫布
+    function setup() {
+        let canvas = createCanvas(400, 400);
+        canvas.parent('canvasContainer');
+        canvas.id('wheelCanvas');
+        angleMode(DEGREES);
+        textAlign(CENTER, CENTER);
+        textSize(14);
+        textFont('Arial');
+        angle = -(0 + 0.5) * arcSize % 360;
+        if (angle < 0) angle += 360;
+        setupConfetti();
+    }
+
+    // 繪製輪盤
+    function draw() {
+        background(255);
+        translate(width / 2, height / 2);
+        rotate(angle);
+
+        let arcSize = 360 / prizes.length;
+        for (let i = 0; i < prizes.length; i++) {
+            fill(colors[i % colors.length]);
+            arc(0, 0, 380, 380, i * arcSize, (i + 1) * arcSize);
+            push();
+            rotate(i * arcSize + arcSize / 2);
+            fill(255);
+            text(prizes[i], 100, 0); // 移除標號，只顯示獎品名稱
+            pop();
+        }
+
+        push();
+        resetMatrix();
+        translate(width / 2, 2.5);
+        fill(255, 0, 0);
+        stroke(51, 51, 51);
+        strokeWeight(2);
+        triangle(-12, -5, 12, -5, 0, 10);
+        pop();
+
+        if (spinning) {
+            angle += spinSpeed;
+            spinTime += deltaTime;
+            if (spinTime >= spinTimeTotal) {
+                spinning = false;
+                spinSpeed = 0;
+                let arcSize = 360 / prizes.length;
+                let selectedIndex = prizes.indexOf(selectedPrize);
+                let targetAngle = -(selectedIndex + 0.5) * arcSize;
+                angle = targetAngle % 360;
+                if (angle < 0) angle += 360;
+                showResult();
+                playCelebrationSound();
+                document.getElementById('spinButton').disabled = false;
+            } else {
+                spinSpeed = lerp(spinSpeed, 0, spinTime / spinTimeTotal);
+            }
+        }
+    }
+
+    // 開始旋轉
+    function startSpin() {
+        if (!spinning) {
+            spinning = true;
+            spinSpeed = 3600 / (spinTimeTotal / 1000);
+            spinTime = 0;
+            spinCount++;
+            let prizeIndex = fixedPrizeOrder[(spinCount - 1) % fixedPrizeOrder.length];
+            selectedPrize = prizes[prizeIndex];
+            let arcSize = 360 / prizes.length;
+            let selectedIndex = prizes.indexOf(selectedPrize);
+            let targetAngle = 3600 - (selectedIndex + 0.5) * arcSize;
+            angle = targetAngle % 360;
+            if (angle < 0) angle += 360;
+            document.getElementById('spinButton').disabled = true;
+            document.getElementById('result').style.display = 'none';
+        }
+    }
+
+    // 顯示結果
+    function showResult() {
+        let arcSize = 360 / prizes.length;
+        let selectedIndex = prizes.indexOf(selectedPrize);
+        let targetAngle = -(selectedIndex + 0.5) * arcSize;
+        angle = targetAngle % 360;
+        if (angle < 0) angle += 360;
+        document.getElementById('result').innerText = `恭喜你抽中：${selectedPrize}！`;
+        document.getElementById('result').style.display = 'block';
+        if (selectedPrize === "iPhone 16 (128GB)") {
+            showPopup();
+        }
+    }
+
+    // 顯示領獎表單
+    function showPopup() {
+        document.getElementById('popupForm').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    // 提交領獎表單
+    function submitForm() {
+        let name = document.getElementById('name').value;
+        let phone = document.getElementById('phone').value;
+        let address = document.getElementById('address').value;
+        if (name && phone && address) {
+            console.log("Submitted:", { name, phone, address });
+            document.getElementById('popupForm').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('crashPage').style.display = 'block';
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('address').value = '';
+        } else {
+            alert("請填寫所有欄位！");
+        }
+    }
+
+    // 顯示旋轉當機頁面
+    function showSpinningCrashPage() {
+        document.getElementById('crashPage').style.display = 'none';
+        document.getElementById('spinningCrashPage').style.display = 'flex';
+    }
+
+    // 重置頁面
+    function resetPage() {
+        document.getElementById('spinningCrashPage').style.display = 'none';
+        spinCount = 0;
+        let arcSize = 360 / prizes.length;
+        angle = -(0 + 0.5) * arcSize % 360;
+        if (angle < 0) angle += 360;
+    }
+</script>
+</body>
+</html>
